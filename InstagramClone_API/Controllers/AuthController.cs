@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-
+using InstagramClone_API.DTOs;
 namespace InstagramClone.Controllers
 {
     [Route("api/[controller]")]

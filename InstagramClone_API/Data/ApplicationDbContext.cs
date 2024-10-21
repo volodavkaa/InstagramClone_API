@@ -1,7 +1,7 @@
 ﻿using InstagramClone.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-
+using Microsoft.AspNetCore.Identity;
 namespace InstagramClone.Data
 {
     public class ApplicationDbContext : DbContext

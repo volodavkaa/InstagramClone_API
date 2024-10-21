@@ -1,5 +1,7 @@
 using InstagramClone.Data;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -12,7 +14,7 @@ namespace InstagramClone_API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+           
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,11 +36,12 @@ namespace InstagramClone_API
                 };
             });
 
+           
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "InstagramClone_API", Version = "v1" });
 
-               
+                
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -48,8 +51,7 @@ namespace InstagramClone_API
                     Scheme = "Bearer"
                 });
 
-                
-                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement()
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
                 {
                     {
                         new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -72,11 +74,19 @@ namespace InstagramClone_API
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+          
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
             
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
+            
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            
             var app = builder.Build();
 
             
@@ -85,11 +95,20 @@ namespace InstagramClone_API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseHttpsRedirection();          
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
+
+            
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+          
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseStaticFiles();          
+
             app.MapControllers();
+
+         
             app.Run();
         }
     }
